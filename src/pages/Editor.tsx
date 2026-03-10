@@ -270,6 +270,11 @@ export function Editor() {
       animate={{ opacity: 1, y: 0 }}
       className="space-y-6 h-full flex flex-col"
     >
+      <datalist id="standard-fields">
+        {STANDARD_FIELDS.map(f => (
+          <option key={f} value={f}>{f.replace(/_/g, ' ')}</option>
+        ))}
+      </datalist>
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold text-slate-900 tracking-tight">Data Transformation Editor</h1>
@@ -561,16 +566,14 @@ export function Editor() {
                             </div>
                             <div className="flex items-center gap-2">
                               <span className="text-[10px] uppercase tracking-wider text-slate-500 font-semibold">Map to:</span>
-                              <select 
+                              <input 
+                                type="text"
+                                list="standard-fields"
                                 value={localMappings[col] || ''}
                                 onChange={(e) => handleMappingChange(col, e.target.value)}
-                                className={`text-xs bg-white border rounded px-1 py-0.5 w-full focus:outline-none focus:border-indigo-500 ${localMappings[col] ? 'border-indigo-300 bg-indigo-50 text-indigo-700 font-medium' : 'border-slate-300'}`}
-                              >
-                                <option value="">-- Select --</option>
-                                {STANDARD_FIELDS.map(f => (
-                                  <option key={f} value={f}>{f.replace('_', ' ')}</option>
-                                ))}
-                              </select>
+                                placeholder="Type or select..."
+                                className={`text-xs bg-white border rounded px-2 py-1 w-full focus:outline-none focus:border-indigo-500 ${localMappings[col] ? 'border-indigo-300 bg-indigo-50 text-indigo-700 font-medium' : 'border-slate-300'}`}
+                              />
                             </div>
                           </div>
                         </th>

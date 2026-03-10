@@ -58,7 +58,7 @@ export function Upload() {
           Papa.parse(selectedFile, {
             header: true,
             skipEmptyLines: true,
-            preview: 10, // Only read first 10 rows for memory efficiency
+            // Removed preview limit to load the full dataset for export
             complete: (results) => {
               setTimeout(() => {
                 setFileData({
@@ -95,9 +95,8 @@ export function Upload() {
               workbook.SheetNames.forEach(sheetName => {
                 const worksheet = workbook.Sheets[sheetName];
                 const jsonData = XLSX.utils.sheet_to_json(worksheet);
-                const previewData = jsonData.slice(0, 10);
-                const columns = previewData.length > 0 ? Object.keys(previewData[0] as object) : [];
-                sheetsData[sheetName] = { data: previewData, columns };
+                const columns = jsonData.length > 0 ? Object.keys(jsonData[0] as object) : [];
+                sheetsData[sheetName] = { data: jsonData, columns };
               });
               
               const firstSheetName = workbook.SheetNames[0];
@@ -134,15 +133,14 @@ export function Upload() {
               const json = JSON.parse(e.target?.result as string);
               const dataArray = Array.isArray(json) ? json : [json];
               
-              // Take only first 10 rows for preview
-              const previewData = dataArray.slice(0, 10);
-              const columns = previewData.length > 0 ? Object.keys(previewData[0]) : [];
+              // Load full dataset for export
+              const columns = dataArray.length > 0 ? Object.keys(dataArray[0]) : [];
               
               setTimeout(() => {
                 setFileData({
                   fileName: selectedFile.name, 
                   fileSize: selectedFile.size,
-                  data: previewData,
+                  data: dataArray,
                   columns: columns
                 });
                 navigate('/editor');
