@@ -1,0 +1,60 @@
+{
+  "status": "success",
+  "summary": {
+    "duplicates_removed": 1,
+    "dates_converted": 2
+  },
+  "processed_results": [
+    {
+      "Txn_Date": {
+        "original": 45417,
+        "transformed": "2024-05-05",
+        "status": "Fixed"
+      },
+      "Description": {
+        "original": "STRIPE PAYOUT",
+        "transformed": "STRIPE PAYOUT",
+        "status": "Unchanged"
+      },
+      "Amount": {
+        "original": 1240.5,
+        "transformed": 1240.5,
+        "status": "Unchanged"
+      }
+    },
+    {
+      "Txn_Date": {
+        "original": "10/25/2023",
+        "transformed": "10/25/2023",
+        "status": "Unchanged"
+      },
+      "Description": {
+        "original": "AWS WEB SERVICES",
+        "transformed": "AWS WEB SERVICES",
+        "status": "Unchanged"
+      },
+      "Amount": {
+        "original": -45.0,
+        "transformed": -45.0,
+        "status": "Unchanged"
+      }
+    },
+    {
+      "Txn_Date": {
+        "original": 45417,
+        "transformed": null,
+        "status": "Removed"
+      },
+      "Description": {
+        "original": "STRIPE PAYOUT",
+        "transformed": null,
+        "status": "Removed"
+      },
+      "Amount": {
+        "original": 1240.5,
+        "transformed": null,
+        "status": "Removed"
+      }
+    }
+  ]
+}
