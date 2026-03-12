@@ -1,0 +1,7 @@
+Txn Date,Particulars,Ref No,DR,CR,Balance
+2024/01/05,Opening Balance,,15000.00,,15000.00
+2024/01/10,Office Supplies,INV-001,,250.00,14750.00
+2024/01/15,Client Payment,REC-102,5000.00,,19750.00
+05/01/2024,Software Subscription,INV-002,,120.00,19630.00
+2024-02-01,Rent Payment,INV-003,,2000.00,17630.00
+2024-02-15,Consulting Fee,REC-103,3500.00,,21130.00

@@ -42,125 +42,48 @@ export function Upload() {
   const processFile = (selectedFile: File) => {
     setFile(selectedFile);
     
-    // Simulate upload progress
+    // Simulate upload progress with realistic variable chunking
     let progress = 0;
-    const interval = setInterval(() => {
-      progress += 10;
-      setUploadProgress(progress);
+    
+    const updateProgress = () => {
+      // Random increment between 5% and 20%
+      progress += Math.floor(Math.random() * 16) + 5;
       
       if (progress >= 100) {
-        clearInterval(interval);
-        
-        // Parse the file with memory-efficient preview (first 10 rows)
-        const ext = selectedFile.name.split('.').pop()?.toLowerCase();
-        
-        if (ext === 'csv') {
-          Papa.parse(selectedFile, {
-            header: true,
-            skipEmptyLines: true,
-            // Removed preview limit to load the full dataset for export
-            complete: (results) => {
-              setTimeout(() => {
-                setFileData({
-                  fileName: selectedFile.name, 
-                  fileSize: selectedFile.size,
-                  data: results.data,
-                  columns: results.meta.fields as string[]
-                });
-                navigate('/editor');
-              }, 500);
-            },
-            error: (error) => {
-              console.error("Error parsing CSV:", error);
-              setTimeout(() => {
-                setFileData({
-                  fileName: selectedFile.name, 
-                  fileSize: selectedFile.size,
-                  data: [],
-                  columns: []
-                });
-                navigate('/editor');
-              }, 500);
-            }
-          });
-        } else if (ext === 'xlsx' || ext === 'xls') {
-          const reader = new FileReader();
-          reader.onload = (e) => {
-            try {
-              const data = new Uint8Array(e.target?.result as ArrayBuffer);
-              const workbook = XLSX.read(data, { type: 'array' });
-              
-              const sheetsData: Record<string, { data: any[], columns: string[] }> = {};
-              
-              workbook.SheetNames.forEach(sheetName => {
-                const worksheet = workbook.Sheets[sheetName];
-                const jsonData = XLSX.utils.sheet_to_json(worksheet);
-                const columns = jsonData.length > 0 ? Object.keys(jsonData[0] as object) : [];
-                sheetsData[sheetName] = { data: jsonData, columns };
-              });
-              
-              const firstSheetName = workbook.SheetNames[0];
-              
-              setTimeout(() => {
-                setFileData({
-                  fileName: selectedFile.name, 
-                  fileSize: selectedFile.size,
-                  data: sheetsData[firstSheetName].data,
-                  columns: sheetsData[firstSheetName].columns,
-                  sheets: sheetsData,
-                  currentSheet: firstSheetName
-                });
-                navigate('/editor');
-              }, 500);
-            } catch (error) {
-              console.error("Error parsing Excel:", error);
-              setTimeout(() => {
-                setFileData({
-                  fileName: selectedFile.name, 
-                  fileSize: selectedFile.size,
-                  data: [],
-                  columns: []
-                });
-                navigate('/editor');
-              }, 500);
-            }
-          };
-          reader.readAsArrayBuffer(selectedFile);
-        } else if (ext === 'json') {
-          const reader = new FileReader();
-          reader.onload = (e) => {
-            try {
-              const json = JSON.parse(e.target?.result as string);
-              const dataArray = Array.isArray(json) ? json : [json];
-              
-              // Load full dataset for export
-              const columns = dataArray.length > 0 ? Object.keys(dataArray[0]) : [];
-              
-              setTimeout(() => {
-                setFileData({
-                  fileName: selectedFile.name, 
-                  fileSize: selectedFile.size,
-                  data: dataArray,
-                  columns: columns
-                });
-                navigate('/editor');
-              }, 500);
-            } catch (error) {
-              console.error("Error parsing JSON:", error);
-              setTimeout(() => {
-                setFileData({
-                  fileName: selectedFile.name, 
-                  fileSize: selectedFile.size,
-                  data: [],
-                  columns: []
-                });
-                navigate('/editor');
-              }, 500);
-            }
-          };
-          reader.readAsText(selectedFile);
-        } else {
-          // For other files, just navigate without parsed data for now
+        progress = 100;
+        setUploadProgress(100);
+        executeParsing(selectedFile);
+      } else {
+        setUploadProgress(progress);
+        // Random timeout between 100ms and 500ms to simulate network chunking
+        setTimeout(updateProgress, Math.floor(Math.random() * 400) + 100);
+      }
+    };
+    
+    setTimeout(updateProgress, 200);
+  };
+
+  const executeParsing = (selectedFile: File) => {
+    // Parse the file with memory-efficient preview
+    const ext = selectedFile.name.split('.').pop()?.toLowerCase();
+    
+    if (ext === 'csv') {
+      Papa.parse(selectedFile, {
+        header: true,
+        skipEmptyLines: true,
+        complete: (results) => {
+          setTimeout(() => {
+            setFileData({
+              fileName: selectedFile.name, 
+              fileSize: selectedFile.size,
+              data: results.data,
+              columns: results.meta.fields as string[]
+            });
+            navigate('/editor');
+          }, 500);
+        },
+        error: (error) => {
+          console.error("Error parsing CSV:", error);
           setTimeout(() => {
             setFileData({
               fileName: selectedFile.name, 
@@ -171,8 +94,93 @@ export function Upload() {
             navigate('/editor');
           }, 500);
         }
-      }
-    }, 200);
+      });
+    } else if (ext === 'xlsx' || ext === 'xls') {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        try {
+          const data = new Uint8Array(e.target?.result as ArrayBuffer);
+          const workbook = XLSX.read(data, { type: 'array' });
+          
+          const sheetsData: Record<string, { data: any[], columns: string[] }> = {};
+          
+          workbook.SheetNames.forEach(sheetName => {
+            const worksheet = workbook.Sheets[sheetName];
+            const jsonData = XLSX.utils.sheet_to_json(worksheet);
+            const columns = jsonData.length > 0 ? Object.keys(jsonData[0] as object) : [];
+            sheetsData[sheetName] = { data: jsonData, columns };
+          });
+          
+          const firstSheetName = workbook.SheetNames[0];
+          
+          setTimeout(() => {
+            setFileData({
+              fileName: selectedFile.name, 
+              fileSize: selectedFile.size,
+              data: sheetsData[firstSheetName].data,
+              columns: sheetsData[firstSheetName].columns,
+              sheets: sheetsData,
+              currentSheet: firstSheetName
+            });
+            navigate('/editor');
+          }, 500);
+        } catch (error) {
+          console.error("Error parsing Excel:", error);
+          setTimeout(() => {
+            setFileData({
+              fileName: selectedFile.name, 
+              fileSize: selectedFile.size,
+              data: [],
+              columns: []
+            });
+            navigate('/editor');
+          }, 500);
+        }
+      };
+      reader.readAsArrayBuffer(selectedFile);
+    } else if (ext === 'json') {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        try {
+          const json = JSON.parse(e.target?.result as string);
+          const dataArray = Array.isArray(json) ? json : [json];
+          
+          const columns = dataArray.length > 0 ? Object.keys(dataArray[0]) : [];
+          
+          setTimeout(() => {
+            setFileData({
+              fileName: selectedFile.name, 
+              fileSize: selectedFile.size,
+              data: dataArray,
+              columns: columns
+            });
+            navigate('/editor');
+          }, 500);
+        } catch (error) {
+          console.error("Error parsing JSON:", error);
+          setTimeout(() => {
+            setFileData({
+              fileName: selectedFile.name, 
+              fileSize: selectedFile.size,
+              data: [],
+              columns: []
+            });
+            navigate('/editor');
+          }, 500);
+        }
+      };
+      reader.readAsText(selectedFile);
+    } else {
+      setTimeout(() => {
+        setFileData({
+          fileName: selectedFile.name, 
+          fileSize: selectedFile.size,
+          data: [],
+          columns: []
+        });
+        navigate('/editor');
+      }, 500);
+    }
   };
 
   const handleClick = () => {

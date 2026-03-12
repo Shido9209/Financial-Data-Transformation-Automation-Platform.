@@ -1,8 +1,29 @@
+# dependencies
 node_modules/
-build/
+
+# build
 dist/
+dist-ssr/
+build/
+
+# testing
 coverage/
-.DS_Store
-*.log
+
+# environment variables
 .env*
 !.env.example
+
+# logs
+*.log
+npm-debug.log*
+
+# IDEs and OS files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# app-specific
+uploads/
+tmp/
+temp/
